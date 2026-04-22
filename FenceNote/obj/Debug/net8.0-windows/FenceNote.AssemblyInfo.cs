@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FenceNote")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b2093e25062bd01a74fa1769ad8c8ed7394bab39")]
 [assembly: System.Reflection.AssemblyProductAttribute("FenceNote")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FenceNote")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
