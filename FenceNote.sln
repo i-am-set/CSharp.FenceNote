@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FenceNote", "FenceNote\FenceNote.csproj", "{34298849-9BC7-44CE-B68B-0813A4D5C008}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "FenceNoteApp", "FenceNoteApp\FenceNoteApp.vdproj", "{0480D1FD-A44C-192B-6BD8-65CABC158EDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{34298849-9BC7-44CE-B68B-0813A4D5C008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34298849-9BC7-44CE-B68B-0813A4D5C008}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34298849-9BC7-44CE-B68B-0813A4D5C008}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34298849-9BC7-44CE-B68B-0813A4D5C008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0480D1FD-A44C-192B-6BD8-65CABC158EDF}.Debug|Any CPU.ActiveCfg = Debug
+		{0480D1FD-A44C-192B-6BD8-65CABC158EDF}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C6FA82B-EBB1-4760-BEE7-BC7009823E53}
+	EndGlobalSection
+EndGlobal
