@@ -68,4 +68,3 @@ FenceNote is a secure, offline note-taking application built with C# designed to
    ```bash
    "FenceNote.exe"
    ```
-```
