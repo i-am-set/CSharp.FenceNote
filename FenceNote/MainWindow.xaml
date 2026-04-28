@@ -723,4 +723,89 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Cancel" Command="{Binding CancelUnlockVaultCommand}" Margin="0,0,10,0" Padding="15,5" Foreground="{DynamicResource TextPrimaryBrush}" Background="{DynamicResource Pane2BgBrush}" BorderThickness="0" Cursor="Hand"/>
-                        <Button Content="Unlock" Command="{B... (6 KB left)
+                        <Button Content="Unlock" Command="{Binding ConfirmUnlockVaultCommand}" Padding="15,5" Background="#0078D7" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>
+
+        <!-- Move to Vault Prompt -->
+        <Popup IsOpen="{Binding IsMoveToVaultPromptOpen, Mode=TwoWay}" 
+               Placement="Center" 
+               StaysOpen="False" 
+               AllowsTransparency="True">
+            <Border Background="{DynamicResource Pane3BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20" CornerRadius="4" Width="300">
+                <Border.CacheMode>
+                    <BitmapCache EnableClearType="True" RenderAtScale="1" />
+                </Border.CacheMode>
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="10" ShadowDepth="2" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Move to Vault" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,15" />
+
+                    <ItemsControl ItemsSource="{Binding Vaults}" 
+                                  Background="Transparent" 
+                                  BorderThickness="0" 
+                                  MaxHeight="200"
+                                  Margin="0,0,0,15">
+                        <ItemsControl.Template>
+                            <ControlTemplate TargetType="ItemsControl">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ItemsControl.Template>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Name}" 
+                                        Command="{Binding DataContext.ConfirmMoveToVaultCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
+                                        CommandParameter="{Binding}"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left"
+                                        Padding="10,5"
+                                        Background="Transparent"
+                                        Foreground="{DynamicResource TextPrimaryBrush}"
+                                        BorderThickness="0"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4">
+                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource Pane1BgBrush}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button Content="+ New Vault" 
+                            Command="{Binding RequestCreateVaultCommand}" 
+                            Margin="0,0,0,15" 
+                            Padding="10,5" 
+                            Background="#0078D7" 
+                            Foreground="White" 
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Cancel" Command="{Binding CancelMoveToVaultCommand}" Padding="15,5" Foreground="{DynamicResource TextPrimaryBrush}" Background="{DynamicResource Pane2BgBrush}" BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>
+
+    </Grid>
+</Window>
