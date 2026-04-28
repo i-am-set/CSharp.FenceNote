@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -30,6 +30,9 @@ namespace FenceNote.ViewModels
         private bool _isDeletePromptOpen;
         private Note? _noteToDelete;
 
+        private bool _isDeleteVaultPromptOpen;
+        private Vault? _vaultToDelete;
+
         private bool _isVaultPromptOpen;
         private bool _isMoveToVaultPromptOpen;
         private bool _isUnlockPromptOpen;
@@ -42,6 +45,8 @@ namespace FenceNote.ViewModels
         private Vault? _vaultToUnlock;
         private Note? _noteToMove;
         private Action? _pendingUnlockAction;
+
+        public string AppVersion => "v0.0.3";
 
         public AppSettings Settings { get; private set; }
 
@@ -124,6 +129,12 @@ namespace FenceNote.ViewModels
             set => SetProperty(ref _isDeletePromptOpen, value);
         }
 
+        public bool IsDeleteVaultPromptOpen
+        {
+            get => _isDeleteVaultPromptOpen;
+            set => SetProperty(ref _isDeleteVaultPromptOpen, value);
+        }
+
         public bool IsVaultPromptOpen
         {
             get => _isVaultPromptOpen;
@@ -201,7 +212,11 @@ namespace FenceNote.ViewModels
         public ICommand RequestCreateVaultCommand { get; }
         public ICommand ConfirmCreateVaultCommand { get; }
         public ICommand CancelCreateVaultCommand { get; }
-        public ICommand DeleteVaultCommand { get; }
+
+        public ICommand RequestDeleteVaultCommand { get; }
+        public ICommand ConfirmDeleteVaultCommand { get; }
+        public ICommand CancelDeleteVaultCommand { get; }
+
         public ICommand ClearVaultSelectionCommand { get; }
         public ICommand SelectVaultCommand { get; }
         public ICommand BeginRenameVaultCommand { get; }
@@ -261,21 +276,39 @@ namespace FenceNote.ViewModels
             ConfirmCreateVaultCommand = new RelayCommand(_ => ExecuteCreateVault());
             CancelCreateVaultCommand = new RelayCommand(_ => IsVaultPromptOpen = false);
 
-            DeleteVaultCommand = new RelayCommand(p =>
+            RequestDeleteVaultCommand = new RelayCommand(p =>
             {
                 if (p is Vault vault)
                 {
-                    if (!vault.IsUnlocked)
+                    _vaultToDelete = vault;
+                    IsDeleteVaultPromptOpen = true;
+                }
+            });
+
+            ConfirmDeleteVaultCommand = new RelayCommand(_ =>
+            {
+                if (_vaultToDelete != null)
+                {
+                    if (!_vaultToDelete.IsUnlocked)
                     {
-                        VaultToUnlock = vault;
-                        _pendingUnlockAction = () => ExecuteDeleteVault(vault);
+                        VaultToUnlock = _vaultToDelete;
+                        var vaultToDel = _vaultToDelete;
+                        _pendingUnlockAction = () => ExecuteDeleteVault(vaultToDel);
                         IsUnlockPromptOpen = true;
                     }
                     else
                     {
-                        ExecuteDeleteVault(vault);
+                        ExecuteDeleteVault(_vaultToDelete);
                     }
+                    IsDeleteVaultPromptOpen = false;
+                    _vaultToDelete = null;
                 }
+            });
+
+            CancelDeleteVaultCommand = new RelayCommand(_ =>
+            {
+                IsDeleteVaultPromptOpen = false;
+                _vaultToDelete = null;
             });
 
             ClearVaultSelectionCommand = new RelayCommand(_ => SelectedVault = null);
