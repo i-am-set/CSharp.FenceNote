@@ -1,4 +1,4 @@
-﻿<Window x:Class="FenceNote.MainWindow"
+<Window x:Class="FenceNote.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -23,6 +23,8 @@
         <SolidColorBrush x:Key="BorderBrush" Color="#CCCCCC" />
         <SolidColorBrush x:Key="TextCaretBrush" Color="#000000" />
         <SolidColorBrush x:Key="HighlightBrush" Color="#0078D7" />
+        <SolidColorBrush x:Key="Pane1HoverBrush" Color="#D0D0D0" />
+        <SolidColorBrush x:Key="Pane2HoverBrush" Color="#E0E0E0" />
     </Window.Resources>
 
     <Window.InputBindings>
@@ -85,7 +87,7 @@
                                         <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
                                         <Condition Binding="{Binding IsPublicNotesSelected}" Value="False" />
                                     </MultiDataTrigger.Conditions>
-                                    <Setter Property="Background" Value="#15888888" />
+                                    <Setter Property="Background" Value="{DynamicResource Pane1HoverBrush}" />
                                 </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -114,169 +116,204 @@
                             </ScrollViewer>
                         </ControlTemplate>
                     </ItemsControl.Template>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Panel.ZIndex" Value="0" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="1" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="1" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsUnlockTarget}" Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="1" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Command="{Binding DataContext.SelectVaultCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                    CommandParameter="{Binding}"
-                                    BorderThickness="0"
-                                    HorizontalContentAlignment="Stretch"
-                                    Padding="0"
-                                    Cursor="Hand">
-                                <Button.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Lock Vault" 
-                                                  Command="{Binding PlacementTarget.Tag.LockVaultCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                                                  CommandParameter="{Binding}" />
-                                        <MenuItem Header="{Binding LockoutDisplay, StringFormat='Lockout Timer ({0})'}">
-                                            <MenuItem Header="15 seconds" Command="{Binding PlacementTarget.Tag.SetLockout15sCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
-                                            <MenuItem Header="30 seconds" Command="{Binding PlacementTarget.Tag.SetLockout30sCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
-                                            <MenuItem Header="1 minute" Command="{Binding PlacementTarget.Tag.SetLockout1mCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
-                                            <MenuItem Header="5 minutes" Command="{Binding PlacementTarget.Tag.SetLockout5mCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
-                                            <MenuItem Header="15 minutes" Command="{Binding PlacementTarget.Tag.SetLockout15mCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
-                                        </MenuItem>
-                                        <Separator />
-                                        <MenuItem Header="Rename" 
-                                                  Command="{Binding PlacementTarget.Tag.BeginRenameVaultCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                                                  CommandParameter="{Binding}" />
-                                        <MenuItem Header="Delete" 
-                                                  Command="{Binding PlacementTarget.Tag.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                                                  CommandParameter="{Binding}" />
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}" />
-                                        <Setter Property="Background" Value="Transparent" />
-                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4">
-                                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource Pane2BgBrush}" />
-                                                <Setter Property="Foreground" Value="{DynamicResource HighlightBrush}" />
-                                            </DataTrigger>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
-                                                    <Condition Binding="{Binding IsSelected}" Value="False" />
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter Property="Background" Value="#15888888" />
-                                            </MultiDataTrigger>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding IsUnlockTarget}" Value="True" />
-                                                    <Condition Binding="{Binding IsSelected}" Value="False" />
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter Property="Background" Value="#15888888" />
-                                            </MultiDataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+                            <Grid>
+                                <Border x:Name="Divider" Height="1" VerticalAlignment="Bottom" Background="{DynamicResource BorderBrush}" Opacity="0.4" Margin="10,0,10,0" SnapsToDevicePixels="True" />
 
-                                    <TextBlock Grid.Column="0" Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" Margin="10,0,5,0" VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#D13438" />
-                                                <Setter Property="Visibility" Value="Visible" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsUnlocked}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                                        <Setter Property="Foreground" Value="#4CAF50" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsUnlockTarget}" Value="True">
-                                                        <Setter Property="Foreground" Value="#4CAF50" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                <Button x:Name="VaultBtn"
+                                        Command="{Binding DataContext.SelectVaultCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"
+                                        BorderThickness="0"
+                                        HorizontalContentAlignment="Stretch"
+                                        Padding="0"
+                                        Cursor="Hand">
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Lock Vault" 
+                                                      Command="{Binding PlacementTarget.Tag.LockVaultCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="{Binding LockoutDisplay, StringFormat='Lockout Timer ({0})'}">
+                                                <MenuItem Header="15 seconds" Command="{Binding PlacementTarget.Tag.SetLockout15sCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="30 seconds" Command="{Binding PlacementTarget.Tag.SetLockout30sCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="1 minute" Command="{Binding PlacementTarget.Tag.SetLockout1mCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="5 minutes" Command="{Binding PlacementTarget.Tag.SetLockout5mCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
+                                                <MenuItem Header="15 minutes" Command="{Binding PlacementTarget.Tag.SetLockout15mCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}" />
+                                            </MenuItem>
+                                            <Separator />
+                                            <MenuItem Header="Rename" 
+                                                      Command="{Binding PlacementTarget.Tag.BeginRenameVaultCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="Delete" 
+                                                      Command="{Binding PlacementTarget.Tag.RequestDeleteVaultCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                                      CommandParameter="{Binding}" />
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Grid>
+                                                            <Border x:Name="BgBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="0" />
+                                                            <Border Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                            </Border>
+                                                        </Grid>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="BgBorder" Property="Margin" Value="0,-1,0,0" />
+                                                            </Trigger>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter TargetName="BgBorder" Property="Margin" Value="0,-1,0,0" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsUnlockTarget}" Value="True">
+                                                                <Setter TargetName="BgBorder" Property="Margin" Value="0,-1,0,0" />
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource Pane2BgBrush}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource HighlightBrush}" />
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                        <Condition Binding="{Binding IsSelected}" Value="False" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Background" Value="{DynamicResource Pane1HoverBrush}" />
+                                                </MultiDataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsUnlockTarget}" Value="True" />
+                                                        <Condition Binding="{Binding IsSelected}" Value="False" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Background" Value="{DynamicResource Pane1HoverBrush}" />
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="&#xE785;" FontFamily="Segoe MDL2 Assets" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Margin="10,0,5,0" VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsUnlocked}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                        <TextBlock Grid.Column="0" Text="&#xE72E;" FontFamily="Segoe MDL2 Assets" Margin="10,0,5,0" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="#D13438" />
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsUnlocked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                            <Setter Property="Foreground" Value="#4CAF50" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsUnlockTarget}" Value="True">
+                                                            <Setter Property="Foreground" Value="#4CAF50" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                                    <TextBlock Grid.Column="1" Text="{Binding Name}" 
-                                               Padding="5,10,10,10" 
-                                               TextTrimming="CharacterEllipsis" 
-                                               FontWeight="SemiBold"
-                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=Explicit}" 
-                                             Padding="6,8"
-                                             Margin="2"
-                                             FontWeight="SemiBold"
-                                             Foreground="{DynamicResource TextPrimaryBrush}"
-                                             Background="{DynamicResource Pane3BgBrush}"
-                                             BorderThickness="1"
-                                             BorderBrush="#0078D7"
-                                             CaretBrush="{DynamicResource TextCaretBrush}"
-                                             LostFocus="RenameTextBox_LostFocus"
-                                             KeyDown="RenameTextBox_KeyDown"
-                                             mvvm:FocusExtension.IsFocused="{Binding IsEditing}">
-                                        <TextBox.Style>
-                                            <Style TargetType="TextBox">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBox.Style>
-                                    </TextBox>
+                                        <TextBlock Grid.Column="0" Text="&#xE785;" FontFamily="Segoe MDL2 Assets" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Margin="10,0,5,0" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsUnlocked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                                    <TextBlock Grid.Column="2" Text="{Binding RemainingLockoutDisplay}" 
-                                               Foreground="{DynamicResource TextSecondaryBrush}" 
-                                               FontSize="10" 
-                                               VerticalAlignment="Center" 
-                                               Margin="5,0,10,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsUnlocked}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Grid>
-                            </Button>
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" 
+                                                   Padding="5,10,10,10" 
+                                                   TextTrimming="CharacterEllipsis" 
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=Explicit}" 
+                                                 Padding="6,8"
+                                                 Margin="2"
+                                                 FontWeight="SemiBold"
+                                                 Foreground="{DynamicResource TextPrimaryBrush}"
+                                                 Background="{DynamicResource Pane3BgBrush}"
+                                                 BorderThickness="1"
+                                                 BorderBrush="#0078D7"
+                                                 CaretBrush="{DynamicResource TextCaretBrush}"
+                                                 LostFocus="RenameTextBox_LostFocus"
+                                                 KeyDown="RenameTextBox_KeyDown"
+                                                 mvvm:FocusExtension.IsFocused="{Binding IsEditing}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+
+                                        <TextBlock Grid.Column="2" Text="{Binding RemainingLockoutDisplay}" 
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" 
+                                                   FontSize="10" 
+                                                   VerticalAlignment="Center" 
+                                                   Margin="5,0,10,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsUnlocked}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Button>
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -285,7 +322,7 @@
                         Content="+ New Vault" 
                         Command="{Binding RequestCreateVaultCommand}" 
                         ToolTip="New Vault (Ctrl+Shift+V)"
-                        Margin="10,5,10,15" 
+                        Margin="10,5,10,5" 
                         Padding="5" 
                         Background="#0078D7" 
                         Foreground="White" 
@@ -323,6 +360,11 @@
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Panel.ZIndex" Value="0" />
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu>
@@ -349,6 +391,42 @@
                                     </ContextMenu>
                                 </Setter.Value>
                             </Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Grid>
+                                            <Border x:Name="Divider" Height="1" VerticalAlignment="Bottom" Background="{DynamicResource BorderBrush}" Opacity="0.4" Margin="10,0,10,0" SnapsToDevicePixels="True" />
+                                            <Border x:Name="BgBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="0" />
+                                            <Border Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                            </Border>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="BgBorder" Property="Background" Value="{DynamicResource Pane3BgBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource HighlightBrush}" />
+                                                <Setter TargetName="BgBorder" Property="Margin" Value="0,-1,0,0" />
+                                            </Trigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsMouseOver" Value="True" />
+                                                    <Condition Property="IsSelected" Value="False" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter TargetName="BgBorder" Property="Background" Value="{DynamicResource Pane2HoverBrush}" />
+                                                <Setter TargetName="BgBorder" Property="Margin" Value="0,-1,0,0" />
+                                            </MultiTrigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="1" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="1" />
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
@@ -358,7 +436,7 @@
                                            Padding="10" 
                                            TextTrimming="CharacterEllipsis" 
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}">
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Visible" />
@@ -402,7 +480,7 @@
                         Content="+ New Note" 
                         Command="{Binding AddNoteCommand}" 
                         ToolTip="New Note (Ctrl+T)"
-                        Margin="10,5,10,15" 
+                        Margin="10,5,10,5" 
                         Padding="5" 
                         Background="#0078D7" 
                         Foreground="White" 
@@ -440,7 +518,7 @@
                          Background="Transparent" 
                          VerticalScrollBarVisibility="Auto" />
 
-                <Grid Grid.Row="2" Margin="20,0,20,20" Visibility="{Binding IsNoteSelected, Converter={StaticResource BoolToVis}}">
+                <Grid Grid.Row="2" Margin="20,0,20,5" Visibility="{Binding IsNoteSelected, Converter={StaticResource BoolToVis}}">
                     <Button Content="DELETE NOTE" 
                             HorizontalAlignment="Center"
                             Command="{Binding RequestDeleteNoteCommand}" 
@@ -456,17 +534,24 @@
 
         <!-- Bottom Bar -->
         <Border Grid.Row="1" Background="{DynamicResource Pane1BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,0">
-                <Button Content="Toggle Dark Mode" 
-                        Command="{Binding ToggleDarkModeCommand}" 
-                        Padding="15,0" 
-                        Background="Transparent" 
-                        Foreground="{DynamicResource TextPrimaryBrush}" 
-                        BorderThickness="1,0,1,0" 
-                        BorderBrush="{DynamicResource BorderBrush}" 
-                        Cursor="Hand" 
-                        VerticalAlignment="Stretch"/>
-            </StackPanel>
+            <Grid Margin="10,0">
+                <TextBlock Text="{Binding AppVersion}" 
+                           VerticalAlignment="Center" 
+                           Foreground="{DynamicResource TextSecondaryBrush}" 
+                           FontWeight="SemiBold" />
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Toggle Dark Mode" 
+                            Command="{Binding ToggleDarkModeCommand}" 
+                            Padding="15,0" 
+                            Background="Transparent" 
+                            Foreground="{DynamicResource TextPrimaryBrush}" 
+                            BorderThickness="1,0,1,0" 
+                            BorderBrush="{DynamicResource BorderBrush}" 
+                            Cursor="Hand" 
+                            VerticalAlignment="Stretch"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- Popups and Notifications (Z-Index Top) -->
@@ -544,6 +629,46 @@
             </Border>
         </Popup>
 
+        <!-- Delete Vault Prompt -->
+        <Popup IsOpen="{Binding IsDeleteVaultPromptOpen, Mode=TwoWay}" 
+               Placement="Center" 
+               StaysOpen="False" 
+               AllowsTransparency="True">
+            <Border Background="{DynamicResource Pane3BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20" CornerRadius="4" Width="300">
+                <Border.CacheMode>
+                    <BitmapCache EnableClearType="True" RenderAtScale="1" />
+                </Border.CacheMode>
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="10" ShadowDepth="2" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Are you sure you want to delete this vault and all its notes?" 
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               FontWeight="SemiBold" 
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,0,0,20" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="CANCEL" 
+                                Command="{Binding CancelDeleteVaultCommand}" 
+                                Margin="0,0,10,0" 
+                                Padding="15,5" 
+                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                Background="{DynamicResource Pane2BgBrush}" 
+                                BorderThickness="0" 
+                                Cursor="Hand"/>
+                        <Button Content="DELETE" 
+                                Command="{Binding ConfirmDeleteVaultCommand}" 
+                                Padding="15,5" 
+                                Background="#D13438" 
+                                Foreground="White" 
+                                BorderThickness="0" 
+                                Cursor="Hand"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>
+
         <!-- Create Vault Prompt -->
         <Popup IsOpen="{Binding IsVaultPromptOpen, Mode=TwoWay}" 
                Placement="Center" 
@@ -598,89 +723,4 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Cancel" Command="{Binding CancelUnlockVaultCommand}" Margin="0,0,10,0" Padding="15,5" Foreground="{DynamicResource TextPrimaryBrush}" Background="{DynamicResource Pane2BgBrush}" BorderThickness="0" Cursor="Hand"/>
-                        <Button Content="Unlock" Command="{Binding ConfirmUnlockVaultCommand}" Padding="15,5" Background="#0078D7" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </Popup>
-
-        <!-- Move to Vault Prompt -->
-        <Popup IsOpen="{Binding IsMoveToVaultPromptOpen, Mode=TwoWay}" 
-               Placement="Center" 
-               StaysOpen="False" 
-               AllowsTransparency="True">
-            <Border Background="{DynamicResource Pane3BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20" CornerRadius="4" Width="300">
-                <Border.CacheMode>
-                    <BitmapCache EnableClearType="True" RenderAtScale="1" />
-                </Border.CacheMode>
-                <Border.Effect>
-                    <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="10" ShadowDepth="2" />
-                </Border.Effect>
-                <StackPanel>
-                    <TextBlock Text="Move to Vault" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,15" />
-
-                    <ItemsControl ItemsSource="{Binding Vaults}" 
-                                  Background="Transparent" 
-                                  BorderThickness="0" 
-                                  MaxHeight="200"
-                                  Margin="0,0,0,15">
-                        <ItemsControl.Template>
-                            <ControlTemplate TargetType="ItemsControl">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                    <ItemsPresenter />
-                                </ScrollViewer>
-                            </ControlTemplate>
-                        </ItemsControl.Template>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding Name}" 
-                                        Command="{Binding DataContext.ConfirmMoveToVaultCommand, RelativeSource={RelativeSource AncestorType=Window}}" 
-                                        CommandParameter="{Binding}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        Padding="10,5"
-                                        Background="Transparent"
-                                        Foreground="{DynamicResource TextPrimaryBrush}"
-                                        BorderThickness="0"
-                                        Cursor="Hand">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="4">
-                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource Pane1BgBrush}" />
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Button Content="+ New Vault" 
-                            Command="{Binding RequestCreateVaultCommand}" 
-                            Margin="0,0,0,15" 
-                            Padding="10,5" 
-                            Background="#0078D7" 
-                            Foreground="White" 
-                            BorderThickness="0"
-                            Cursor="Hand"/>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Cancel" Command="{Binding CancelMoveToVaultCommand}" Padding="15,5" Foreground="{DynamicResource TextPrimaryBrush}" Background="{DynamicResource Pane2BgBrush}" BorderThickness="0" Cursor="Hand"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </Popup>
-
-    </Grid>
-</Window>
+                        <Button Content="Unlock" Command="{B... (6 KB left)
