@@ -2,3 +2,7 @@
 /.vs
 /.vs
 *.vsidx
+/.vs
+/.vs
+/FenceNote/bin
+/FenceNote/obj
