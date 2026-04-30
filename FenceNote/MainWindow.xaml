@@ -10,7 +10,10 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBgBrush}"
         PreviewMouseDown="Window_PreviewMouseDown"
-        PreviewKeyDown="Window_PreviewKeyDown">
+        PreviewKeyDown="Window_PreviewKeyDown"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        RenderOptions.ClearTypeHint="Enabled">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -109,9 +112,14 @@
                             <MenuItem Header="Add New Vault" Command="{Binding RequestCreateVaultCommand}" />
                         </ContextMenu>
                     </ItemsControl.ContextMenu>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.Template>
                         <ControlTemplate TargetType="ItemsControl">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
                                 <ItemsPresenter />
                             </ScrollViewer>
                         </ControlTemplate>
@@ -334,6 +342,7 @@
             <Grid Grid.Column="1" Background="{DynamicResource Pane2BgBrush}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -345,12 +354,42 @@
                            FontWeight="Bold" 
                            Margin="15,20,10,5" />
 
-                <ListBox Grid.Row="1" 
-                         ItemsSource="{Binding DisplayedNotes}" 
+                <!-- Search Bar -->
+                <Grid Grid.Row="1" Margin="10,5,10,10">
+                    <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="28,6,6,6"
+                             Background="{DynamicResource Pane3BgBrush}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             BorderBrush="{DynamicResource BorderBrush}"
+                             BorderThickness="1"
+                             CaretBrush="{DynamicResource TextCaretBrush}" />
+                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               VerticalAlignment="Center" Margin="8,0,0,0" IsHitTestVisible="False" />
+                    <TextBlock Text="Search notes..." 
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               VerticalAlignment="Center" Margin="30,0,0,0" IsHitTestVisible="False">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <ListBox Grid.Row="2" 
+                         ItemsSource="{Binding DisplayedNotesView}" 
                          SelectedItem="{Binding SelectedNote, Mode=TwoWay}"
                          Background="Transparent" 
                          BorderThickness="0" 
                          Margin="5,0,5,0"
+                         VirtualizingStackPanel.IsVirtualizing="True"
+                         VirtualizingStackPanel.VirtualizationMode="Recycling"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ListBox.ContextMenu>
                         <ContextMenu>
@@ -476,7 +515,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-                <Button Grid.Row="2" 
+                <Button Grid.Row="3" 
                         Content="+ New Note" 
                         Command="{Binding AddNoteCommand}" 
                         ToolTip="New Note (Ctrl+T)"
