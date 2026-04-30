@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 using FenceNote.Models;
@@ -25,6 +27,8 @@ namespace FenceNote.ViewModels
         private readonly DispatcherTimer _autoSaveTimer;
         private DateTime _lastActivity = DateTime.Now;
 
+        private string _searchText = string.Empty;
+
         private Note? _selectedNote;
         private Vault? _selectedVault;
         private bool _isDeletePromptOpen;
@@ -46,15 +50,28 @@ namespace FenceNote.ViewModels
         private Note? _noteToMove;
         private Action? _pendingUnlockAction;
 
-        public string AppVersion => "v0.0.3";
+        public string AppVersion => "v1.0.0";
 
         public AppSettings Settings { get; private set; }
 
         public ObservableCollection<Vault> Vaults { get; }
         public ObservableCollection<Note> DisplayedNotes { get; }
+        public ICollectionView DisplayedNotesView { get; }
         public ObservableCollection<NotificationItem> Notifications { get; } = new();
 
         public event EventHandler<bool>? DarkModeRequested;
+
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                {
+                    DisplayedNotesView.Refresh();
+                }
+            }
+        }
 
         public Note? SelectedNote
         {
@@ -97,6 +114,7 @@ namespace FenceNote.ViewModels
                         _selectedVault.IsSelected = true;
                     }
 
+                    SearchText = string.Empty;
                     LoadNotesForSelection();
                     OnPropertyChanged(nameof(IsVaultSelected));
                     OnPropertyChanged(nameof(IsPublicNotesSelected));
@@ -246,6 +264,9 @@ namespace FenceNote.ViewModels
 
             Vaults = new ObservableCollection<Vault>(_databaseService.GetAllVaults());
             DisplayedNotes = new ObservableCollection<Note>();
+
+            DisplayedNotesView = CollectionViewSource.GetDefaultView(DisplayedNotes);
+            DisplayedNotesView.Filter = FilterNotes;
 
             _activityTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _activityTimer.Tick += (s, e) => CheckVaultLockouts();
@@ -408,7 +429,20 @@ namespace FenceNote.ViewModels
             LoadNotesForSelection();
         }
 
-        private void SelectedNote_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private bool FilterNotes(object obj)
+        {
+            if (string.IsNullOrWhiteSpace(SearchText)) return true;
+
+            if (obj is Note note)
+            {
+                bool matchesTitle = note.Title != null && note.Title.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                bool matchesContent = note.Content != null && note.Content.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                return matchesTitle || matchesContent;
+            }
+            return false;
+        }
+
+        private void SelectedNote_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Note.Title) || e.PropertyName == nameof(Note.Content))
             {
@@ -502,7 +536,6 @@ namespace FenceNote.ViewModels
 
         private async void LoadNotesForSelection()
         {
-            DisplayedNotes.Clear();
             var currentVaultId = _selectedVault?.Id;
 
             var notes = await Task.Run(() =>
@@ -515,6 +548,7 @@ namespace FenceNote.ViewModels
 
             if (_selectedVault?.Id != currentVaultId) return;
 
+            DisplayedNotes.Clear();
             foreach (var note in notes)
             {
                 DisplayedNotes.Add(note);
@@ -531,6 +565,7 @@ namespace FenceNote.ViewModels
             };
 
             DisplayedNotes.Insert(0, newNote);
+            SearchText = string.Empty;
             SelectedNote = newNote;
 
             var noteSnapshot = new Note
