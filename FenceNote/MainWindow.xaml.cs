@@ -18,6 +18,7 @@ namespace FenceNote
         {
             InitializeComponent();
             _viewModel = new MainViewModel();
+            DataContext = _viewModel;
 
             _viewModel.DarkModeRequested += ViewModel_DarkModeRequested;
             Loaded += MainWindow_Loaded;
@@ -27,6 +28,26 @@ namespace FenceNote
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             _viewModel.TriggerInitialTheme();
+
+            _viewModel.PropertyChanged += (s, args) =>
+            {
+                if (args.PropertyName == nameof(MainViewModel.IsVaultPromptOpen))
+                {
+                    if (_viewModel.IsVaultPromptOpen)
+                    {
+                        VaultPasswordBox.Clear();
+                        VaultConfirmPasswordBox.Clear();
+                    }
+                }
+                else if (args.PropertyName == nameof(MainViewModel.IsUnlockPromptOpen))
+                {
+                    if (_viewModel.IsUnlockPromptOpen)
+                    {
+                        UnlockVaultPasswordBox.Clear();
+                        UnlockVaultPasswordBox.Focus();
+                    }
+                }
+            };
         }
 
         private void MainWindow_Closing(object? sender, CancelEventArgs e)
@@ -88,6 +109,15 @@ namespace FenceNote
                 if (clickedElement is TextBox) return;
                 clickedElement = VisualTreeHelper.GetParent(clickedElement);
             }
+
+            foreach (var vault in _viewModel.Vaults)
+            {
+                if (vault.IsEditing) _viewModel.CancelVaultRename(vault);
+            }
+            foreach (var note in _viewModel.DisplayedNotes)
+            {
+                if (note.IsEditing) _viewModel.CancelNoteRename(note);
+            }
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -110,6 +140,37 @@ namespace FenceNote
             }
         }
 
+        private void RenameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                if (e.Key == Key.Enter)
+                {
+                    if (textBox.DataContext is Vault vault)
+                    {
+                        _viewModel.CommitVaultRename(vault, textBox.Text);
+                    }
+                    else if (textBox.DataContext is Note note)
+                    {
+                        _viewModel.CommitNoteRename(note, textBox.Text);
+                    }
+                    e.Handled = true;
+                }
+                else if (e.Key == Key.Escape)
+                {
+                    if (textBox.DataContext is Vault vault)
+                    {
+                        _viewModel.CancelVaultRename(vault);
+                    }
+                    else if (textBox.DataContext is Note note)
+                    {
+                        _viewModel.CancelNoteRename(note);
+                    }
+                    e.Handled = true;
+                }
+            }
+        }
+
         private void VaultPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext is MainViewModel vm)
@@ -123,6 +184,14 @@ namespace FenceNote
             if (DataContext is MainViewModel vm)
             {
                 vm.VaultConfirmPasswordInput = VaultConfirmPasswordBox.Password;
+            }
+        }
+
+        private void UnlockVaultPasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                vm.UnlockPasswordInput = UnlockVaultPasswordBox.Password;
             }
         }
 
